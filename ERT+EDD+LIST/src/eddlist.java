@@ -26,40 +26,29 @@ public class eddlist {
 			Array[i] = new Jobs();
 		}
 
-		Workstations[] Array2 = new Workstations[NJ];
+		Workstations[] Array2 = new Workstations[NW];
 		for (int i = 0; i < NW; i++) {
 			Array2[i] = new Workstations();
 			Array2[i].setId(i + 1);
 			Array2[i].setL(200);
 		}
 
-		randomDataGenerator(NJ, Array);
+		randomJobGenerator(NJ, Array);
 		Massage(Array);
-
-		EDD(NJ, Array, Schedule);
-		Simulation(NJ, Array, Schedule, 0);
-		Evaluate(NJ, Array, goalFunction);
-		System.out.println("\nEDD:");
-		printGoals(goalFunction);
-
-		SPT(NJ, Array, Schedule);
-		Simulation(NJ, Array, Schedule, 0);
-		Evaluate(NJ, Array, goalFunction);
-		System.out.println("\nSPT:");
-		printGoals(goalFunction);
+		randomWorkstationGenerator(NW, Array2);
+		Massage2(Array2);
 
 		EDD_LIST(NJ, Array, NW, Array2, s, Schedule);
-		Simulation_P(NW, Array, Array2, Schedule, 0);
+		Simulation_P(NW, Array, Array2, Schedule);
 		Evaluate(NJ, Array, goalFunction);
 		System.out.println("\nEDD+LIST:");
 		printGoals(goalFunction);
 		System.out.println();
 		Massage3(s);
 		System.out.println();
-		Massage2(Array2, NW);
+		Massage2(Array2);
 		System.out.println();
 		Massage(Array);
-		System.out.println(Schedule[0]+"\t"+ Schedule[1]+"\t"+ Schedule[2]);
 		
 	}
 
@@ -69,25 +58,39 @@ public class eddlist {
 		}
 	}
 
-	public static void Massage2(Workstations[] array2, int NW) {
-		for (int i = 0; i < NW; i++) {
-			System.out.println(array2[i].toString());
+	public static void Massage2(Workstations[] array) {
+		for (int i = 0; i < array.length ; i++) {
+			System.out.println(array[i].toString());
 		}
 	}
 
 	public static void Massage3(Scheduler[] array) {
 		for (int i = 0; i < array.length; i++) {
-			System.out.println(array[i].toString());
+			if(array[i].getJobID() != 0) {
+				System.out.println("Job:\tWorkstation:");
+				System.out.println("" + array[i].getJobID()+"\t"+ array[i].getWorkstationID()+"\n");
+			}
 		}
 	}
 
-	public static void randomDataGenerator(int NJ, Jobs[] array) {
+	public static void randomJobGenerator(int NJ, Jobs[] array) {
 		Random r = new Random();
 		for (int i = 0; i < NJ; i++) {
 			int op = r.nextInt(100) + 1;
 			array[i].setId(i + 1);
 			array[i].setOperationT(op);
 			array[i].setD((NJ - i) * r.nextInt(10) + 1 + op);
+		}
+	}
+	
+	public static void randomWorkstationGenerator(int NW, Workstations[] array) {
+		Random r = new Random();
+		for (int i = 0; i < NW; i++) {
+			int op = r.nextInt(10) + 1;
+			array[i].setL(0);
+			array[i].setStart(op);
+			array[i].setEnd(r.nextInt(200) + 50 + op);
+			array[i].setC(0);
 		}
 	}
 
@@ -163,23 +166,17 @@ public class eddlist {
 		goal[1] = Lmax;
 	}
 
-	public static void Simulation(int NJ, Jobs[] array, int[] s, long t0) {
-
+	public static void Simulation(int NJ, Jobs[] array, int[] s) {
 		for (int i = 0; i < NJ; i++) {
-			if (i == 0) {
-				array[s[i]].setStartT((int) t0);
-			} else {
-				array[s[i]].setStartT((int) array[s[i - 1]].getEndT());
-			}
-
 			array[s[i]].setEndT((int) array[s[i]].getStartT() + array[s[i]].getOperationT());
-
 		}
 	}
 
-	public static void Simulation_P(int NW, Jobs[] array, Workstations[] array2, int[] s, long t0) {
+	public static void Simulation_P(int NW, Jobs[] array, Workstations[] array2, int[] s) {
+		int NJ = 0;
 		for (int i = 0; i < NW; i++) {
-			Simulation(array2[i].getL(), array, s, t0);
+			NJ = NJ + array2[i].getL();
+			Simulation(NJ, array, s);
 		}
 	}
 
@@ -195,56 +192,67 @@ public class eddlist {
 			onlyOneWorkstation(NJ, array, NW, array2, sch, s);
 		} else {
 			createSchedule(s, NJ);
-
 			EDD(NJ, array, s);
-
-			for (int r = 0; r < NW; r++) {
-				array2[r].setL(0);
-				array2[r].setC(0);
-			}
-
+			
+			
 			for (int i = 0; i < NJ; i++) {
-				int rSel = 0;
-
+				
 				for (int r = 1; r < NW; r++) {
-					if (array2[rSel].getC() > array2[r].getC())
+					int rSel = 0;
+					if (array2[rSel].getC() > array2[r].getC()) {
 						rSel = r;
+					}
+					if(array2[rSel].getEnd()-array2[rSel].getStart() >= array[s[i]].getOperationT()) {	
+						System.out.println(array[s[i]].getId() +" job assigned to " + array2[rSel].getId() + " workstation!\n");
+						array[s[i]].setStartT((int) array2[rSel].getStart());
+						sch[i].setWorkstationID(array2[rSel].getId());
+						sch[i].setJobID(array[s[i]].getId());
+						array2[rSel].setL(array2[rSel].getL() + 1);
+						array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
+						array2[rSel].setStart(array2[rSel].getStart() + array[s[i]].getOperationT());
+					}else{
+						System.out.println(array[s[i]].getId() +" job can't assign to " + array2[rSel].getId() +" workstation!");
+						if(array2[r].getEnd()-array2[r].getStart() >= array[s[i]].getOperationT() ) {
+							System.out.println(array[s[i]].getId() +" job assigned to " + array2[r].getId() + " workstation!\n");
+							array[s[i]].setStartT((int) array2[r].getStart());
+							sch[i].setWorkstationID(array2[r].getId());
+							sch[i].setJobID(array[s[i]].getId());
+							array2[r].setL(array2[r].getL() + 1);
+							array2[r].setC(array2[r].getC() + array[s[i]].getOperationT());
+							array2[r].setStart(array2[r].getStart() + array[s[i]].getOperationT());
+						}else {
+							System.out.println(array[s[i]].getId() +" job has too much operation time to schedule it!");
+						}
+					}
+					
 				}
+			}
+		}
+	}
 
+	public static void onlyOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
+
+		createSchedule(s, NJ);
+		EDD(NJ, array, s);
+
+		int rSel = 0;
+		
+		for (int i = 0; i < NJ; i++) {
+			
+			int processTime = (int) (array2[rSel].getEnd()-array2[rSel].getC());
+			if(processTime >= array[s[i]].getOperationT()) {
+				
+				array[s[i]].setStartT((int) array2[rSel].getC());
 				sch[i].setWorkstationID(array2[rSel].getId());
 				sch[i].setJobID(array[s[i]].getId());
 				array2[rSel].setL(array2[rSel].getL() + 1);
 				array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
-			}
-
-		}
-
-	}
-
-	public static void onlyOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch,
-			int[] s) {
-
-		createSchedule(s, NJ);
-
-		EDD(NJ, array, s);
-
-		int rSel = 0;
-		array2[rSel].setL(0);
-		array2[rSel].setC(0);
-
-		for (int i = 0; i < NJ; i++) {
-
-			sch[i].setWorkstationID(array2[rSel].getId());
-			sch[i].setJobID(array[s[i]].getId());
-			array2[rSel].setL(array2[rSel].getL() + 1);
-			array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
-			if( s[i] == 0) {
-				array[s[i]].setStartT(0);
-				array[s[i]].setEndT(array[s[i]].getOperationT());
+				
+				
 			}else {
-				array[s[i]].setStartT((int) array2[rSel].getC());
-				array[s[i]].setEndT((int) array2[rSel].getC() + array[s[i]].getOperationT());
+				System.out.println("\nThis job can't be done in 1 Workstation: " + array[s[i]].getId() + "\nTry more workstations!");
 			}
+			
 			
 		}
 

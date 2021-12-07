@@ -5,6 +5,17 @@ public class Workstations {
 	private long C;
 	private int start;
 	private int end;
+	private int Type;
+
+	public int getType() {
+		return Type;
+	}
+
+
+	public void setType(int type) {
+		Type = type;
+	}
+
 
 	public int getStart() {
 		return start;
@@ -55,9 +66,13 @@ public class Workstations {
 		super();
 	}
 
+
 	@Override
 	public String toString() {
-		return "Workstations [id=" + id + ", l=" + l + ", C=" + C + ", start=" + start + ", end=" + end + "]";
+		return "Workstations [id=" + id + ", l=" + l + ", C=" + C + ", start=" + start + ", end=" + end + ", Type="
+				+ Type + "]";
 	}
+
+	
 
 }

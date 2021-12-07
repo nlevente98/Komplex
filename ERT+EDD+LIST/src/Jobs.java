@@ -70,8 +70,8 @@ public class Jobs {
 
 	@Override
 	public String toString() {
-		return "Jobs [OperationT=" + OperationT + ", Id=" + Id + ", StartT=" + StartT + ", EndT=" + EndT + ", Type="
-				+ Type + ", Duedate=" + d + ", Lateness=" + L + "]";
+		return "Jobs [OperationT=" + OperationT + ", Id=" + Id + ", StartT=" + StartT + ", EndT=" + EndT + ", Duedate=" + d + ", Lateness=" + L + ", Type="
+				+ Type + "]";
 	}
 	
 

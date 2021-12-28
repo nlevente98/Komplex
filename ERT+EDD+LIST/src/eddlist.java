@@ -45,31 +45,28 @@ public class eddlist {
 			}
 		}
 		
-		//ad-hoc szimulacio
+		/*ad-hoc szimulacio
 		System.out.println("\nAd-hoc sorrend:");
 		Simulation_FS(NW, job, res, NW, s, 0);
 		print_Res_Gantt(job, NJ, NW, s);
 		Simulation_P(NW, job, res, s);
 		Evaluate(NJ, job, goalFunction);
-		printGoals(goalFunction);
+		printGoals(goalFunction);*/
 
-		/*randomJobGenerator(NJ, Array);
-		Massage(Array);
-		randomWorkstationGenerator(NW, Array2);
-		Massage2(Array2);
+		randomJobGenerator(NJ, job);
+		Massage(job);
+		randomWorkstationGenerator(NW, res);
+		Massage2(res);
 
-		EDD_LIST(NJ, Array, NW, Array2, s, Schedule);
-		Simulation_P(NW, Array, Array2, Schedule);
-		Evaluate(NJ, Array, goalFunction);
+		EDD_LIST(NJ, job, NW, res, s);
+		Simulation_P(NW, job, res, s);
+		Evaluate(NJ, job, goalFunction);
 		System.out.println("\nEDD+LIST:");
 		printGoals(goalFunction);
 		System.out.println();
-		Massage3(s);
+		Massage2(res);
 		System.out.println();
-		Massage2(Array2);
-		System.out.println();
-		Massage(Array);
-		*/
+		Massage(job);
 		
 	}
 
@@ -85,15 +82,6 @@ public class eddlist {
 		}
 	}
 
-	public static void Massage3(Scheduler[] array) {
-		for (int i = 0; i < array.length; i++) {
-			if(array[i].getJobID() != 0) {
-				System.out.println("Job:\tWorkstation:");
-				System.out.println("" + array[i].getJobID()+"\t"+ array[i].getWorkstationID()+"\n");
-			}
-		}
-	}
-
 	public static void randomJobGenerator(int NJ, Jobs[] array) {
 		Random r = new Random();
 		for (int i = 0; i < NJ; i++) {
@@ -105,17 +93,17 @@ public class eddlist {
 		}
 	}
 	
-	/*public static void randomWorkstationGenerator(int NW, Workstations[] array) {
+	public static void randomWorkstationGenerator(int NW, Workstations[] array) {
 		Random r = new Random();
 		for (int i = 0; i < NW; i++) {
 			int op = r.nextInt(10) + 1;
 			array[i].setL(0);
-			array[i].setStart(op);
-			array[i].setEnd(r.nextInt(150) + 50 + op);
+			array[i].setSetT(op);
+			array[i].setTransT(r.nextInt(150) + 50 + op);
 			array[i].setC(0);
 			array[i].setType(0);
 		}
-	}*/
+	}
 
 	public static void EDD(int NJ, Jobs[] array, int[] s) {
 
@@ -257,10 +245,10 @@ public class eddlist {
 	}
 	
 
-	/*public static void EDD_LIST(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
+	public static void EDD_LIST(int NJ, Jobs[] array, int NW, Workstations[] array2, int[] s) {
 
 		if (NW == 1) {
-			EDDOneWorkstation(NJ, array, NW, array2, sch, s);
+			EDDOneWorkstation(NJ, array, NW, array2, s);
 		} else {
 			createSchedule(s, NJ);
 			EDD(NJ, array, s);
@@ -274,28 +262,24 @@ public class eddlist {
 					if(array2[j].getId() == sorted [0][0])
 						rSel = j;
 				}
-				if(array2[rSel].getEnd()-array2[rSel].getStart() >= array[s[i]].getOperationT() && array2[rSel].getType() == array[s[i]].getType()) {
+				if(array2[rSel].getTransT()-array2[rSel].getSetT() >= array[s[i]].getProcT() && array2[rSel].getType() == array[s[i]].getType()) {
 					System.out.println(array[s[i]].getId() +" job assigned to " + array2[rSel].getId() + " workstation!\n");
-					array[s[i]].setStartT((int) array2[rSel].getStart());
-					sch[i].setWorkstationID(array2[rSel].getId());
-					sch[i].setJobID(array[s[i]].getId());
+					array[s[i]].setStartT((int) array2[rSel].getSetT());
 					array2[rSel].setL(array2[rSel].getL() + 1);
-					array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
-					array2[rSel].setStart(array2[rSel].getStart() + array[s[i]].getOperationT());
+					array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
+					array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
 				}else{
 					for (int j = 1; j < NW; j++) {
 						for (int j2 = 0; j2 < NW; j2++) {
 							if(array2[j2].getId() == sorted [0][j])
 								if(j2 != rSel)
 									rSel = j2;
-							if(array2[rSel].getEnd()-array2[rSel].getStart() >= array[s[i]].getOperationT() && array2[rSel].getType() == array[s[i]].getType()) {
+							if(array2[rSel].getTransT()-array2[rSel].getSetT() >= array[s[i]].getProcT() && array2[rSel].getType() == array[s[i]].getType()) {
 								System.out.println(array[s[i]].getId() +" job assigned to " + array2[rSel].getId() + " workstation!\n");
-								array[s[i]].setStartT((int) array2[rSel].getStart());
-								sch[i].setWorkstationID(array2[rSel].getId());
-								sch[i].setJobID(array[s[i]].getId());
+								array[s[i]].setStartT((int) array2[rSel].getSetT());
 								array2[rSel].setL(array2[rSel].getL() + 1);
-								array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
-								array2[rSel].setStart(array2[rSel].getStart() + array[s[i]].getOperationT());
+								array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
+								array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
 							}else {
 								System.out.println(array[s[i]].getId() +" job can't assign to " + array2[rSel].getId() +" workstation!");
 								if(j<NW)
@@ -311,7 +295,7 @@ public class eddlist {
 	}
 	
 
-	public static void EDDOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
+	public static void EDDOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, int[] s) {
 
 		createSchedule(s, NJ);
 		EDD(NJ, array, s);
@@ -319,20 +303,18 @@ public class eddlist {
 		
 		for (int i = 0; i < NJ; i++) {
 			
-			if((int) (array2[rSel].getEnd()-array2[rSel].getC()) >= array[s[i]].getOperationT()) {
+			if((int) (array2[rSel].getTransT()-array2[rSel].getC()) >= array[s[i]].getProcT()) {
 				
 				array[s[i]].setStartT((int) array2[rSel].getC());
-				sch[i].setWorkstationID(array2[rSel].getId());
-				sch[i].setJobID(array[s[i]].getId());
 				array2[rSel].setL(array2[rSel].getL() + 1);
-				array2[rSel].setC(array2[rSel].getC() + array[s[i]].getOperationT());
-				array2[rSel].setStart(array2[rSel].getStart() + array[s[i]].getOperationT());
+				array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
+				array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
 				
 			}else {
 				System.out.println("\nThis job can't be done in 1 Workstation: " + array[s[i]].getId() + "\nTry more workstations!");
 			}
 		}
-	}*/
+	}
 	
 	
 	public static int[][] SortingWorkstations(int NW, Workstations[] work) {

@@ -15,25 +15,45 @@ public class eddlist {
 		NW = scanInput.nextInt();
 		scanInput.close();
 
-		int[] Schedule = new int[NJ];
-		Scheduler[] s = new Scheduler[NJ];
+		int[] s = new int[NJ];
+		Jobs[] job = new Jobs[NJ];
 		for (int i = 0; i < NJ; i++) {
-			s[i] = new Scheduler();
+			Random r = new Random();
+			job[i] = new Jobs();
+			job[i].setId(i + 1);
+			for (int j = 0; j < NW; j++) {
+				job[i].setProcT(r.nextInt(100) + 1);
+			}
 		}
+		createSchedule(s, NJ);
 
-		Jobs[] Array = new Jobs[NJ];
-		for (int i = 0; i < NJ; i++) {
-			Array[i] = new Jobs();
-		}
-
-		Workstations[] Array2 = new Workstations[NW];
+		Workstations[] res = new Workstations[NW];
 		for (int i = 0; i < NW; i++) {
-			Array2[i] = new Workstations();
-			Array2[i].setId(i + 1);
-			Array2[i].setL(200);
+			Random r = new Random();
+			res[i] = new Workstations();
+			res[i].setId(i + 1);
+			for (int j = 0; j < NW; j++) {
+				res[i].setTransT(r.nextInt(20) + 10);
+			}
+			for (int j = 0; j < NJ; j++) {
+				for (int k = 0; k < NJ; k++) {
+					if (j ==k)
+						res[i].setSetT(0);
+					else
+						res[i].setSetT(r.nextInt(100) + 10);
+				}
+			}
 		}
+		
+		//ad-hoc szimulacio
+		System.out.println("\nAd-hoc sorrend:");
+		Simulation_FS(NW, job, res, NW, s, 0);
+		print_Res_Gantt(job, NJ, NW, s);
+		Simulation_P(NW, job, res, s);
+		Evaluate(NJ, job, goalFunction);
+		printGoals(goalFunction);
 
-		randomJobGenerator(NJ, Array);
+		/*randomJobGenerator(NJ, Array);
 		Massage(Array);
 		randomWorkstationGenerator(NW, Array2);
 		Massage2(Array2);
@@ -49,6 +69,7 @@ public class eddlist {
 		Massage2(Array2);
 		System.out.println();
 		Massage(Array);
+		*/
 		
 	}
 
@@ -78,13 +99,13 @@ public class eddlist {
 		for (int i = 0; i < NJ; i++) {
 			int op = r.nextInt(100) + 1;
 			array[i].setId(i + 1);
-			array[i].setOperationT(op);
+			array[i].setProcT(op);
 			array[i].setD((NJ - i) * r.nextInt(10) + 1 + op);
 			array[i].setType(0);
 		}
 	}
 	
-	public static void randomWorkstationGenerator(int NW, Workstations[] array) {
+	/*public static void randomWorkstationGenerator(int NW, Workstations[] array) {
 		Random r = new Random();
 		for (int i = 0; i < NW; i++) {
 			int op = r.nextInt(10) + 1;
@@ -94,7 +115,7 @@ public class eddlist {
 			array[i].setC(0);
 			array[i].setType(0);
 		}
-	}
+	}*/
 
 	public static void EDD(int NJ, Jobs[] array, int[] s) {
 
@@ -125,7 +146,7 @@ public class eddlist {
 			int index = i;
 
 			for (int j = (i + 1); j < NJ; j++) {
-				if (array[s[index]].getOperationT() > array[s[j]].getOperationT())
+				if (array[s[index]].getProcT() > array[s[j]].getProcT())
 					index = j;
 			}
 
@@ -171,10 +192,53 @@ public class eddlist {
 		goal[0] = Emax;
 		goal[1] = Lmax;
 	}
+	
+	public static void Simulation_FS(int NJ, Jobs[] job, Workstations[] res, int NW, int[] s, long t0) {
+		 int i; //az inditas sorrendjenek indexe
+		 int r; //munkahely indexe, technologiai sorrendet koveti a gepek azonositoja
+
+		  for( i=0; i<NJ; i++ ){
+		    for( r=0; r<NW; r++ ){
+		         if ( i==0 ){ //kezdo munka
+		              if ( r==0 ){ //kezdo gepen
+		                job[s[i]].setStartT((int) t0);
+		              }
+		              else{ //nem kezdo gepen
+		            	int ad = job[r-1].getEndT() + res[r-1].getTransT();
+		                job[s[i]].setStartT(ad);
+		              }
+		              	int ad2 = job[s[i]].getStartT() + res[r].getSetT() + job[s[i]].getProcT();
+		                job[s[i]].setEndT(ad2);
+		         }
+		         else{ //nem kezdo munka
+		              if ( r==0 ){ //kezdo gepen
+		                job[s[i]].setStartT(job[s[i-1]].getEndT());
+		              }
+		              else{ //nem kezdo gepen
+		                job[s[i]].setStartT(Math.max( job[r-1].getEndT() + res[r-1].getTransT(), job[r].getEndT()));
+		              }
+		              	int ad2 = job[s[i]].getStartT() + res[r].getSetT() + job[r].getProcT();
+		                job[s[i]].setEndT(ad2);
+		         }
+		   }
+		 }
+	}
+	
+	public static void print_Res_Gantt( Jobs[] job, int NJ, int NW, int[] s){
+		System.out.println("\n Eroforras-orientalt Gantt adatok:");
+		for ( int r = 0; r<NW; r++ ){
+			  System.out.println("\n" + r + ". munkahely:");
+			  System.out.println("\n # \t munka \t indul \t muv.\t bef.");
+			  
+			  for (int i=0; i<NJ; i++ ){
+				  System.out.println("\n " + i +"\t" + s[i] + "\t" + job[s[i]].getStartT() + "\t" + job[s[i]].getProcT() + "\t" + job[s[i]].getEndT());
+			  }
+		}
+	}
 
 	public static void Simulation(int NJ, Jobs[] array, int[] s) {
 		for (int i = 0; i < NJ; i++) {
-			array[s[i]].setEndT((int) array[s[i]].getStartT() + array[s[i]].getOperationT());
+			array[s[i]].setEndT((int) array[s[i]].getStartT() + array[s[i]].getProcT());
 		}
 	}
 
@@ -191,8 +255,9 @@ public class eddlist {
 		System.out.println("Emax: " + goal[0]);
 		System.out.println("Lmax: " + goal[1]);
 	}
+	
 
-	public static void EDD_LIST(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
+	/*public static void EDD_LIST(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
 
 		if (NW == 1) {
 			EDDOneWorkstation(NJ, array, NW, array2, sch, s);
@@ -244,6 +309,7 @@ public class eddlist {
 			}
 		}
 	}
+	
 
 	public static void EDDOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, Scheduler[] sch, int[] s) {
 
@@ -266,7 +332,8 @@ public class eddlist {
 				System.out.println("\nThis job can't be done in 1 Workstation: " + array[s[i]].getId() + "\nTry more workstations!");
 			}
 		}
-	}
+	}*/
+	
 	
 	public static int[][] SortingWorkstations(int NW, Workstations[] work) {
 		int[][] array = new int[2][NW];

@@ -317,32 +317,4 @@ public class eddlist {
 	}
 	
 	
-	public static int[][] SortingWorkstations(int NW, Workstations[] work) {
-		int[][] array = new int[2][NW];
-		for (int i = 0; i < NW; i++) {
-			array[0][i] = (int) work[i].getId();
-			array[1][i] = (int) work[i].getC();
-		}
-		
-		
-		for(int i = 0 ; i < array.length; i ++){
-            for(int j = 1 ; j < array[i].length ; j ++){
-                if(i != 0){
-                    if(array[i][j-1] > array[i][j] ){
-                        for(int k = j;k>0;k--){
-                            if(array[i][k-1] > array[i][k] ){
-                                 int temp1 = array[i][k-1];
-                                 array[i][k-1] =  array[i][k];
-                                 array[i][k] = temp1;
-                                 int temp2  = array[i-1][k-1];
-                                 array[i-1][k-1] =  array[i-1][k];
-                                 array[i-1][k] = temp2;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-		return array;
-	}
 }

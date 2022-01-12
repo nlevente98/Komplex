@@ -1,34 +1,34 @@
+
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
+import java.awt.event.ActionEvent;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import java.awt.Font;
+import java.awt.Toolkit;
 
+public class Gui {
 
-public class Progi extends JFrame {
-	
-	JFileChooser openFileChooser;
+	/*private JFrame frame;
+	private final JFileChooser openFileChooser;
 	JComboBox comboBox;
 	JTextArea textArea;
 	JButton openFileButton;
 	JLabel massageLabel;
-	JScrollPane scrollPane;
-	
+
 	int end = 0;
 	int NJ = 6;
 	int NW = 3;
@@ -46,15 +46,39 @@ public class Progi extends JFrame {
 	Resources[] res2 = new Resources[NW];
 	Resources[] res3 = new Resources[NW];
 	String[] algorithm = { "", "EDD+List", "SPT+List", "LPT+List" };
+	private JScrollPane scrollPane;
+
 	
-	public Progi() {
-		super("Progi");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setSize(660, 440);
-		getContentPane().setLayout(null);
-		setLocationRelativeTo(null);
-		setVisible(true);
-		
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					Gui window = new Gui();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+
+	public Gui() throws IOException {
+		initialize();
+		openFileChooser = new JFileChooser();
+		openFileChooser.setCurrentDirectory(new File("C:\\Users\\User\\Desktop"));
+		openFileChooser.setFileFilter(new FileNameExtensionFilter("TXT files", "txt"));
+	}
+	
+	
+	public void close() {
+		WindowEvent closeWindow = new WindowEvent(frame, WindowEvent.WINDOW_CLOSING);
+		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeWindow);
+	}
+	
+	
+	private void initialize() throws IOException {
+
 		for (int i = 0; i < NJ; i++) {
 			s[i] = new Scheduler();
 			s2[i] = new Scheduler();
@@ -71,19 +95,20 @@ public class Progi extends JFrame {
 			res[i].setId(i + 1);
 			res[i].setL(200);
 		}
-		
-		openFileChooser = new JFileChooser();
-		openFileChooser.setCurrentDirectory(new File("C:\\Users\\User\\Desktop"));
-		openFileChooser.setFileFilter(new FileNameExtensionFilter("TXT files", "txt"));
-		
+
+		frame = new JFrame();
+		frame.setBounds(100, 100, 660, 440);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+
 		massageLabel = new JLabel("");
 		massageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		massageLabel.setBounds(140, 11, 300, 23);
-		getContentPane().add(massageLabel);
+		frame.getContentPane().add(massageLabel);
 
 		scrollPane = new JScrollPane();
 		scrollPane.setBounds(10, 45, 445, 225);
-		getContentPane().add(scrollPane);
+		frame.getContentPane().add(scrollPane);
 
 		textArea = new JTextArea();
 		textArea.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -146,11 +171,11 @@ public class Progi extends JFrame {
 		});
 
 		openFileButton.setBounds(10, 11, 115, 23);
-		getContentPane().add(openFileButton);
+		frame.getContentPane().add(openFileButton);
 
 		comboBox = new JComboBox(algorithm);
 		comboBox.setBounds(455, 11, 80, 22);
-		getContentPane().add(comboBox);
+		frame.getContentPane().add(comboBox);
 
 		JButton btnNewButton = new JButton("Press");
 		btnNewButton.addActionListener(new ActionListener() {
@@ -177,7 +202,7 @@ public class Progi extends JFrame {
 			}
 		});
 		btnNewButton.setBounds(550, 11, 89, 23);
-		getContentPane().add(btnNewButton);
+		frame.getContentPane().add(btnNewButton);
 		
 		JButton openGanttButton = new JButton("Open Gantt Chart");
 		openGanttButton.addActionListener(new ActionListener() {
@@ -188,18 +213,10 @@ public class Progi extends JFrame {
 			}
 		});
 		openGanttButton.setBounds(10, 281, 150, 23);
-		getContentPane().add(openGanttButton);
+		frame.getContentPane().add(openGanttButton);
 		
 		end = eddlist.SaveLastEndTime(NJ, Js, job);
-	}
-	
-	public void close() {
-		WindowEvent closeWindow = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeWindow);
-	}
+		
 
-	public static void main(String[] args) {
-		Progi p = new Progi();
-	}
-
+	}*/
 }

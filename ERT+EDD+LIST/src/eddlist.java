@@ -1,73 +1,94 @@
 import java.util.Random;
-import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.io.*;
 
 public class eddlist {
 
-	public static void main(String[] args) {
-		Scanner scanInput = new Scanner(System.in);
-		int NJ;
-		int NW;
+	public static void main(String[] args) throws IOException {
+		int NJ = 6;
+		int NW = 3;
 		double[] goalFunction = new double[2];
 
-		System.out.println("Give me the number of jobs: ");
-		NJ = scanInput.nextInt();
-		System.out.println("Give me the number of worstations: ");
-		NW = scanInput.nextInt();
-		scanInput.close();
-
-		int[] s = new int[NJ];
+		int[] Js = new int[NJ];
+		int[] Ws = new int[NW];
+		Scheduler[] s = new Scheduler[NJ];
+		Scheduler[] s2 = new Scheduler[NJ];
+		Scheduler[] s3 = new Scheduler[NJ];
 		Jobs[] job = new Jobs[NJ];
+		Jobs[] job2 = new Jobs[NJ];
+		Jobs[] job3 = new Jobs[NJ];
 		for (int i = 0; i < NJ; i++) {
-			Random r = new Random();
+			s[i] = new Scheduler();
+			s2[i] = new Scheduler();
+			s3[i] = new Scheduler();
 			job[i] = new Jobs();
-			job[i].setId(i + 1);
-			for (int j = 0; j < NW; j++) {
-				job[i].setProcT(r.nextInt(100) + 1);
-			}
+			job2[i] = new Jobs();
+			job3[i] = new Jobs();
 		}
-		createSchedule(s, NJ);
 
-		Workstations[] res = new Workstations[NW];
+		Resources[] res = new Resources[NW];
+		Resources[] res2 = new Resources[NW];
+		Resources[] res3 = new Resources[NW];
 		for (int i = 0; i < NW; i++) {
-			Random r = new Random();
-			res[i] = new Workstations();
+			res[i] = new Resources();
+			res2[i] = new Resources();
+			res3[i] = new Resources();
 			res[i].setId(i + 1);
-			for (int j = 0; j < NW; j++) {
-				res[i].setTransT(r.nextInt(20) + 10);
-			}
-			for (int j = 0; j < NJ; j++) {
-				for (int k = 0; k < NJ; k++) {
-					if (j ==k)
-						res[i].setSetT(0);
-					else
-						res[i].setSetT(r.nextInt(100) + 10);
-				}
-			}
+			res[i].setL(200);
 		}
-		
-		/*ad-hoc szimulacio
-		System.out.println("\nAd-hoc sorrend:");
-		Simulation_FS(NW, job, res, NW, s, 0);
-		print_Res_Gantt(job, NJ, NW, s);
-		Simulation_P(NW, job, res, s);
-		Evaluate(NJ, job, goalFunction);
-		printGoals(goalFunction);*/
 
-		randomJobGenerator(NJ, job);
-		Massage(job);
-		randomWorkstationGenerator(NW, res);
-		Massage2(res);
+		ReadJobs(NJ, job);
+		ReadResources(NW, res);
 
-		EDD_LIST(NJ, job, NW, res, s);
-		Simulation_P(NW, job, res, s);
+		SaveJobs(NJ, job, job2);
+		SaveWorkstations(NW, res, res2);
+		SaveJobs(NJ, job, job3);
+		SaveWorkstations(NW, res, res3);
+
+		// EDD+List
+		List(NJ, job, NW, res, s, Js, 1, Ws);
+		Simulation_P(NW, job, res, Js);
 		Evaluate(NJ, job, goalFunction);
-		System.out.println("\nEDD+LIST:");
-		printGoals(goalFunction);
+
+		System.out.println("\nEDD+List:");
+		System.out.println(printGoals(goalFunction));
+		System.out.println();
+		Massage3(s);
 		System.out.println();
 		Massage2(res);
 		System.out.println();
 		Massage(job);
-		
+
+		// SPT+List
+		System.out.println();
+		List(NJ, job2, NW, res2, s2, Js, 2, Ws);
+		Simulation_P(NW, job2, res2, Js);
+		Evaluate(NJ, job2, goalFunction);
+
+		System.out.println("\nSPT+List:");
+		System.out.println(printGoals(goalFunction));
+		System.out.println();
+		Massage3(s2);
+		System.out.println();
+		Massage2(res2);
+		System.out.println();
+		Massage(job2);
+
+		// LPT+List
+		System.out.println();
+		List(NJ, job3, NW, res3, s3, Js, 3, Ws);
+		Simulation_P(NW, job3, res3, Js);
+		Evaluate(NJ, job3, goalFunction);
+
+		System.out.println("\nLPT+List:");
+		System.out.println(printGoals(goalFunction));
+		System.out.println();
+		Massage3(s3);
+		System.out.println();
+		Massage2(res3);
+		System.out.println();
+		Massage(job3);
+
 	}
 
 	public static void Massage(Jobs[] array) {
@@ -76,36 +97,65 @@ public class eddlist {
 		}
 	}
 
-	public static void Massage2(Workstations[] array) {
-		for (int i = 0; i < array.length ; i++) {
+	public static void Massage2(Resources[] array) {
+		for (int i = 0; i < array.length; i++) {
 			System.out.println(array[i].toString());
 		}
 	}
 
-	public static void randomJobGenerator(int NJ, Jobs[] array) {
+	public static void Massage3(Scheduler[] array) {
+		System.out.println("Jobs:\tWorkstations:");
+		for (int i = 0; i < array.length; i++) {
+			if (array[i].getJobID() != 0) {
+				System.out.println(array[i].getJobID() + "\t" + array[i].getWorkstationID());
+			}
+		}
+	}
+
+	public static void randomJobGenerator(int NJ, Jobs[] job) {
 		Random r = new Random();
 		for (int i = 0; i < NJ; i++) {
 			int op = r.nextInt(100) + 1;
-			array[i].setId(i + 1);
-			array[i].setProcT(op);
-			array[i].setD((NJ - i) * r.nextInt(10) + 1 + op);
-			array[i].setType(0);
+			job[i].setId(i + 1);
+			job[i].setStartT(r.nextInt(10) + 0);
+			job[i].setProcT(op);
+			job[i].setD((NJ - i) * r.nextInt(10) + 1 + op + job[i].getStartT());
+			job[i].setType(0);
 		}
 	}
-	
-	public static void randomWorkstationGenerator(int NW, Workstations[] array) {
+
+	public static void randomWorkstationGenerator(int NW, Resources[] res) {
 		Random r = new Random();
 		for (int i = 0; i < NW; i++) {
-			int op = r.nextInt(10) + 1;
-			array[i].setL(0);
-			array[i].setSetT(op);
-			array[i].setTransT(r.nextInt(150) + 50 + op);
-			array[i].setC(0);
-			array[i].setType(0);
+			int op = r.nextInt(10) + 0;
+			res[i].setL(0);
+			res[i].setStart(op);
+			res[i].setEnd(r.nextInt(200) + 100 + op);
+			res[i].setC(0);
+			res[i].setType(0);
 		}
 	}
 
-	public static void EDD(int NJ, Jobs[] array, int[] s) {
+	public static void SPT(int NJ, Jobs[] job, int[] s) {
+
+		createSchedule(s, NJ);
+		for (int i = 0; i < NJ - 1; i++) {
+			int index = i;
+
+			for (int j = i + 1; j < NJ; j++) {
+				if (job[s[index]].getProcT() > job[s[j]].getProcT())
+					index = j;
+			}
+
+			if (index != i) {
+				int temp = s[index];
+				s[index] = s[i];
+				s[i] = temp;
+			}
+		}
+	}
+
+	public static void EDD(int NJ, Jobs[] job, int[] s) {
 
 		createSchedule(s, NJ);
 
@@ -113,7 +163,7 @@ public class eddlist {
 			int index = i;
 
 			for (int j = (i + 1); j < NJ; j++) {
-				if (array[s[index]].getD() > array[s[j]].getD())
+				if (job[s[index]].getD() > job[s[j]].getD())
 					index = j;
 			}
 
@@ -126,7 +176,7 @@ public class eddlist {
 		}
 	}
 
-	public static void SPT(int NJ, Jobs[] array, int[] s) {
+	public static void LPT(int NJ, Jobs[] job, int[] s) {
 
 		createSchedule(s, NJ);
 
@@ -134,7 +184,7 @@ public class eddlist {
 			int index = i;
 
 			for (int j = (i + 1); j < NJ; j++) {
-				if (array[s[index]].getProcT() > array[s[j]].getProcT())
+				if (job[s[index]].getProcT() < job[s[j]].getProcT())
 					index = j;
 			}
 
@@ -145,6 +195,28 @@ public class eddlist {
 			}
 
 		}
+	}
+
+	public static void WSS(int NW, Resources[] res, int[] s) {
+
+		createSchedule(s, NW);
+
+		for (int i = 0; i < (NW - 1); i++) {
+			int index = i;
+
+			for (int j = (i + 1); j < NW; j++) {
+				if (res[s[index]].getStart() > res[s[j]].getStart())
+					index = j;
+			}
+
+			if (index != i) {
+				int temp = s[index];
+				s[index] = s[i];
+				s[i] = temp;
+			}
+
+		}
+
 	}
 
 	public static void createSchedule(int[] s, int NJ) {
@@ -157,8 +229,9 @@ public class eddlist {
 
 		double Emax = 0;
 		double Lmax = 0;
+
 		for (int i = 0; i < NJ; i++) {
-			if(array[i].getEndT() == 0) {
+			if (array[i].getEndT() == 0) {
 				array[i].setL(0);
 				array[i].setD(0);
 			}
@@ -170,67 +243,26 @@ public class eddlist {
 				if (Lmax < array[i].getL()) {
 					Lmax = array[i].getL();
 				}
-				if (Emax < array[i].getL()) {
+				if (Emax > array[i].getL()) {
 					Emax = array[i].getL();
 				}
 			}
-
 		}
 
-		goal[0] = Emax;
-		goal[1] = Lmax;
-	}
-	
-	public static void Simulation_FS(int NJ, Jobs[] job, Workstations[] res, int NW, int[] s, long t0) {
-		 int i; //az inditas sorrendjenek indexe
-		 int r; //munkahely indexe, technologiai sorrendet koveti a gepek azonositoja
-
-		  for( i=0; i<NJ; i++ ){
-		    for( r=0; r<NW; r++ ){
-		         if ( i==0 ){ //kezdo munka
-		              if ( r==0 ){ //kezdo gepen
-		                job[s[i]].setStartT((int) t0);
-		              }
-		              else{ //nem kezdo gepen
-		            	int ad = job[r-1].getEndT() + res[r-1].getTransT();
-		                job[s[i]].setStartT(ad);
-		              }
-		              	int ad2 = job[s[i]].getStartT() + res[r].getSetT() + job[s[i]].getProcT();
-		                job[s[i]].setEndT(ad2);
-		         }
-		         else{ //nem kezdo munka
-		              if ( r==0 ){ //kezdo gepen
-		                job[s[i]].setStartT(job[s[i-1]].getEndT());
-		              }
-		              else{ //nem kezdo gepen
-		                job[s[i]].setStartT(Math.max( job[r-1].getEndT() + res[r-1].getTransT(), job[r].getEndT()));
-		              }
-		              	int ad2 = job[s[i]].getStartT() + res[r].getSetT() + job[r].getProcT();
-		                job[s[i]].setEndT(ad2);
-		         }
-		   }
-		 }
-	}
-	
-	public static void print_Res_Gantt( Jobs[] job, int NJ, int NW, int[] s){
-		System.out.println("\n Eroforras-orientalt Gantt adatok:");
-		for ( int r = 0; r<NW; r++ ){
-			  System.out.println("\n" + r + ". munkahely:");
-			  System.out.println("\n # \t munka \t indul \t muv.\t bef.");
-			  
-			  for (int i=0; i<NJ; i++ ){
-				  System.out.println("\n " + i +"\t" + s[i] + "\t" + job[s[i]].getStartT() + "\t" + job[s[i]].getProcT() + "\t" + job[s[i]].getEndT());
-			  }
-		}
+		goal[0] = Lmax;
+		if (Emax == 0)
+			goal[1] = Emax;
+		else
+			goal[1] = Math.max(0, -Emax);
 	}
 
 	public static void Simulation(int NJ, Jobs[] array, int[] s) {
 		for (int i = 0; i < NJ; i++) {
-			array[s[i]].setEndT((int) array[s[i]].getStartT() + array[s[i]].getProcT());
+			array[s[i]].setEndT(array[s[i]].getStartT() + array[s[i]].getProcT());
 		}
 	}
 
-	public static void Simulation_P(int NW, Jobs[] array, Workstations[] array2, int[] s) {
+	public static void Simulation_P(int NW, Jobs[] array, Resources[] array2, int[] s) {
 		int NJ = 0;
 		for (int i = 0; i < NW; i++) {
 			NJ = NJ + array2[i].getL();
@@ -238,83 +270,205 @@ public class eddlist {
 		}
 	}
 
-	public static void printGoals(double[] goal) {
-		System.out.println("Goal functions:");
-		System.out.println("Emax: " + goal[0]);
-		System.out.println("Lmax: " + goal[1]);
+	public static String printGoals(double[] goal) {
+		String str = "Goal functions:\nLmax:" + goal[0] + "\nEmax" + goal[1];
+		return str;
 	}
-	
 
-	public static void EDD_LIST(int NJ, Jobs[] array, int NW, Workstations[] array2, int[] s) {
+	public static void List(int NJ, Jobs[] job, int NW, Resources[] res, Scheduler[] sch, int[] s, int number,
+			int[] Ws) {
 
-		if (NW == 1) {
-			EDDOneWorkstation(NJ, array, NW, array2, s);
-		} else {
-			createSchedule(s, NJ);
-			EDD(NJ, array, s);
-			
-			int[][] sorted = new int[2][NW];
-			int rSel = 0;
-			
-			for (int i = 0; i < NJ; i++) {
-				sorted = SortingWorkstations(NW, array2);
-				for (int j = 0; j < NW; j++) {
-					if(array2[j].getId() == sorted [0][0])
-						rSel = j;
-				}
-				if(array2[rSel].getTransT()-array2[rSel].getSetT() >= array[s[i]].getProcT() && array2[rSel].getType() == array[s[i]].getType()) {
-					System.out.println(array[s[i]].getId() +" job assigned to " + array2[rSel].getId() + " workstation!\n");
-					array[s[i]].setStartT((int) array2[rSel].getSetT());
-					array2[rSel].setL(array2[rSel].getL() + 1);
-					array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
-					array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
-				}else{
-					for (int j = 1; j < NW; j++) {
-						for (int j2 = 0; j2 < NW; j2++) {
-							if(array2[j2].getId() == sorted [0][j])
-								if(j2 != rSel)
-									rSel = j2;
-							if(array2[rSel].getTransT()-array2[rSel].getSetT() >= array[s[i]].getProcT() && array2[rSel].getType() == array[s[i]].getType()) {
-								System.out.println(array[s[i]].getId() +" job assigned to " + array2[rSel].getId() + " workstation!\n");
-								array[s[i]].setStartT((int) array2[rSel].getSetT());
-								array2[rSel].setL(array2[rSel].getL() + 1);
-								array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
-								array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
-							}else {
-								System.out.println(array[s[i]].getId() +" job can't assign to " + array2[rSel].getId() +" workstation!");
-								if(j<NW)
-									j++;
+		try {
+			if (NW != 1) {
+				createSchedule(s, NJ);
+				createSchedule(Ws, NW);
+				if (number == 1)
+					EDD(NJ, job, s);
+				else if (number == 2)
+					SPT(NJ, job, s);
+				else if (number == 3)
+					LPT(NJ, job, s);
+
+				for (int i = 0; i < NJ; i++) {
+					WSS(NW, res, Ws);
+					for (int j = 0; j < NW; j++) {
+						if (res[Ws[j]].getEnd() - res[Ws[j]].getStart() >= job[s[i]].getProcT()
+								&& res[Ws[j]].getType() == job[s[i]].getType()) {
+							System.out.println(
+									job[s[i]].getId() + " job assigned to " + res[Ws[j]].getId() + " workstation!\n");
+							if (job[s[i]].getStartT() <= res[Ws[j]].getStart())
+								job[s[i]].setStartT(res[Ws[j]].getStart());
+							else
+								res[Ws[j]].setStart(job[s[i]].getStartT());
+
+							sch[i].setWorkstationID(res[Ws[j]].getId());
+							sch[i].setJobID(job[s[i]].getId());
+							res[Ws[j]].setL(res[Ws[j]].getL() + 1);
+							res[Ws[j]].setC(res[Ws[j]].getC() + job[s[i]].getProcT());
+							res[Ws[j]].setStart(res[Ws[j]].getStart() + job[s[i]].getProcT());
+							j = NW - 1;
+
+						} else {
+							System.out.println(job[s[i]].getId() + " job can't be done in " + res[Ws[j]].getId()
+									+ " workstation!\n");
+							if (j == NW - 1) {
+								System.out.println(
+										"This job can't be done in any of these workstation! Try out with more!\n");
+								sch[i].setJobID(job[s[i]].getId());
+								sch[i].setWorkstationID(0);
 							}
 						}
-						
 					}
-				}	
-				
+				}
+				System.out.println("Simulation done!");
+			} else {
+				OneWorkstation(NJ, job, NW, res, sch, s, number);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void OneWorkstation(int NJ, Jobs[] job, int NW, Resources[] res, Scheduler[] sch, int[] s,
+			int number) {
+
+		try {
+			int rSel = 0;
+			int more = 0;
+			createSchedule(s, NJ);
+			if (number == 1)
+				EDD(NJ, job, s);
+			else if (number == 2)
+				SPT(NJ, job, s);
+			else if (number == 3)
+				LPT(NJ, job, s);
+
+			for (int i = 0; i < NJ; i++) {
+				if (res[rSel].getEnd() - res[rSel].getStart() >= job[s[i]].getProcT()
+						&& res[rSel].getType() == job[s[i]].getType()) {
+					System.out.println(job[s[i]].getId() + " job assigned to " + res[rSel].getId() + " workstation!\n");
+					if (job[s[i]].getStartT() <= res[rSel].getStart())
+						job[s[i]].setStartT(res[rSel].getStart());
+					else
+						res[rSel].setStart(job[s[i]].getStartT());
+
+					sch[i].setWorkstationID(res[rSel].getId());
+					sch[i].setJobID(job[s[i]].getId());
+					res[rSel].setL(res[rSel].getL() + 1);
+					res[rSel].setC(res[rSel].getC() + job[s[i]].getProcT());
+					res[rSel].setStart(res[rSel].getStart() + job[s[i]].getProcT());
+
+				} else {
+					System.out.println(
+							job[s[i]].getId() + " job can't be done in " + res[rSel].getId() + " workstation!\n");
+					sch[i].setWorkstationID(0);
+					sch[i].setJobID(job[s[i]].getId());
+					more++;
+				}
+			}
+			System.out.println("Simulation done!");
+			if (more != 0)
+				System.out.println("This job can't be done in any of these workstation! Try out with more!\n");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
-	
 
-	public static void EDDOneWorkstation(int NJ, Jobs[] array, int NW, Workstations[] array2, int[] s) {
-
-		createSchedule(s, NJ);
-		EDD(NJ, array, s);
-		int rSel = 0;
-		
+	public static void SaveJobs(int NJ, Jobs[] job, Jobs[] jobs) {
 		for (int i = 0; i < NJ; i++) {
-			
-			if((int) (array2[rSel].getTransT()-array2[rSel].getC()) >= array[s[i]].getProcT()) {
-				
-				array[s[i]].setStartT((int) array2[rSel].getC());
-				array2[rSel].setL(array2[rSel].getL() + 1);
-				array2[rSel].setC(array2[rSel].getC() + array[s[i]].getProcT());
-				array2[rSel].setSetT(array2[rSel].getSetT() + array[s[i]].getProcT());
-				
-			}else {
-				System.out.println("\nThis job can't be done in 1 Workstation: " + array[s[i]].getId() + "\nTry more workstations!");
-			}
+			jobs[i].setId(job[i].getId());
+			jobs[i].setStartT(job[i].getStartT());
+			jobs[i].setProcT(job[i].getProcT());
+			jobs[i].setD(job[i].getD());
+			jobs[i].setType(job[i].getType());
 		}
 	}
-	
-	
+
+	public static void SaveWorkstations(int NW, Resources[] res, Resources[] works) {
+		for (int i = 0; i < NW; i++) {
+			works[i].setId(res[i].getId());
+			works[i].setStart(res[i].getStart());
+			works[i].setEnd(res[i].getEnd());
+			works[i].setL(res[i].getL());
+			works[i].setC(res[i].getC());
+			works[i].setType(res[i].getType());
+		}
+	}
+
+	public static void ReadJobs(int NJ, Jobs[] job) throws IOException {
+		String string = "C:\\Users\\User\\Desktop\\Test.txt";
+		FileReader file = new FileReader(string);
+		try (BufferedReader bf = new BufferedReader(file)) {
+			String st = bf.readLine();
+			int count = 0;
+
+			while ((st = bf.readLine()) != null) {
+
+				StringTokenizer stn = new StringTokenizer(st);
+				int ProcT = Integer.parseInt(stn.nextToken());
+				int StartT = Integer.parseInt(stn.nextToken());
+				int d = Integer.parseInt(stn.nextToken());
+				int Type = Integer.parseInt(stn.nextToken());
+
+				job[count].setId(count + 1);
+				job[count].setProcT(ProcT);
+				job[count].setStartT(StartT);
+				job[count].setD(d);
+				job[count].setType(Type);
+				count++;
+
+			}
+
+			for (int i = 0; i < NJ; i++) {
+				System.out.println(job[i].toString());
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void ReadResources(int NW, Resources[] res) throws IOException {
+		String string2 = "C:\\Users\\User\\Desktop\\Test2.txt";
+		FileReader file2 = new FileReader(string2);
+		try (BufferedReader bf2 = new BufferedReader(file2)) {
+			String st2 = bf2.readLine();
+			int count2 = 0;
+
+			while ((st2 = bf2.readLine()) != null) {
+
+				StringTokenizer stn = new StringTokenizer(st2);
+				int start = Integer.parseInt(stn.nextToken());
+				int end = Integer.parseInt(stn.nextToken());
+				int Type = Integer.parseInt(stn.nextToken());
+
+				res[count2].setId(count2 + 1);
+				res[count2].setStart(start);
+				res[count2].setEnd(end);
+				res[count2].setType(Type);
+				res[count2].setC(0);
+				res[count2].setL(0);
+				count2++;
+
+			}
+
+			for (int i = 0; i < NW; i++) {
+				System.out.println(res[i].toString());
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static int SaveLastEndTime(int NJ, int[] Js, Jobs[] job) {
+		int number = 0;
+		for (int i = NJ - 1; i > 0; i--) {
+			if (job[Js[i]].getEndT() != 0) {
+				number = job[Js[NJ - 1]].getEndT();
+				i = 1;
+			}
+		}
+		return number;
+	}
+
 }

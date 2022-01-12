@@ -1,19 +1,34 @@
-
 public class Jobs {
-	private int Id;
 	private int ProcT;
+	private int Id;
 	private int StartT;
 	private int EndT;
 	private int Type;
 	private int d;
 	private int L;
 	
-	public int getId() {
-		return Id;
+	public int getD() {
+		return d;
 	}
 
-	public void setId(int id) {
-		Id = id;
+	public void setD(int d) {
+		this.d = d;
+	}
+
+	public int getL() {
+		return L;
+	}
+
+	public void setL(long m) {
+		L = (int) m;
+	}
+
+	public int getType() {
+		return Type;
+	}
+
+	public void setType(int type) {
+		Type = type;
 	}
 
 	public int getProcT() {
@@ -22,6 +37,14 @@ public class Jobs {
 
 	public void setProcT(int procT) {
 		ProcT = procT;
+	}
+
+	public int getId() {
+		return Id;
+	}
+
+	public void setId(int id) {
+		this.Id = id;
 	}
 
 	public int getStartT() {
@@ -40,40 +63,13 @@ public class Jobs {
 		EndT = endT;
 	}
 
-	public int getType() {
-		return Type;
-	}
-
-	public void setType(int type) {
-		Type = type;
-	}
-
-	public int getD() {
-		return d;
-	}
-
-	public void setD(int d) {
-		this.d = d;
-	}
-
-	public int getL() {
-		return L;
-	}
-
-	public void setL(int l) {
-		L = l;
-	}
-
 	public Jobs() {
 		super();
 	}
 
-
-
 	@Override
 	public String toString() {
-		return "Jobs [Id=" + Id + ", ProcT=" + ProcT + ", StartT=" + StartT + ", EndT=" + EndT + ", Duedate=" + d + ", Lateness=" + L + ", Type="
-				+ Type + "]";
+		return Id + ".job:\nProccessing time:" + ProcT + "\tStart time:" + StartT +"\tEnd time:" + EndT + "\tDuedate:" + d + "\tLateness:" + L + "\n";
 	}
 	
 

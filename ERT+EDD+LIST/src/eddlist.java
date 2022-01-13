@@ -37,8 +37,8 @@ public class eddlist {
 			res[i].setL(200);
 		}
 
-		ReadJobs(NJ, job);
-		ReadResources(NW, res);
+		/*ReadJobs(NJ, job);
+		ReadResources(NW, res);*/
 
 		SaveJobs(NJ, job, job2);
 		SaveWorkstations(NW, res, res2);
@@ -274,6 +274,22 @@ public class eddlist {
 		String str = "Goal functions:\nLmax:" + goal[0] + "\nEmax" + goal[1];
 		return str;
 	}
+	
+	public static String printJobs(Jobs[] job) {
+		String str = "";
+		for (int i = 0; i < job.length; i++) {
+			str += job[i].toString() + "\n";
+		}
+		return str;
+	}
+	
+	public static String printResources(Resources[] res) {
+		String str = "";
+		for (int i = 0; i < res.length; i++) {
+			str += res[i].toString() + "\n";
+		}
+		return str;
+	}
 
 	public static void List(int NJ, Jobs[] job, int NW, Resources[] res, Scheduler[] sch, int[] s, int number,
 			int[] Ws) {
@@ -320,7 +336,7 @@ public class eddlist {
 						}
 					}
 				}
-				System.out.println("Simulation done!");
+				System.out.println("Simulation done!\n");
 			} else {
 				OneWorkstation(NJ, job, NW, res, sch, s, number);
 			}
@@ -396,8 +412,7 @@ public class eddlist {
 		}
 	}
 
-	public static void ReadJobs(int NJ, Jobs[] job) throws IOException {
-		String string = "C:\\Users\\User\\Desktop\\Test.txt";
+	public static void ReadJobs(int NJ, Jobs[] job, String string) throws IOException {
 		FileReader file = new FileReader(string);
 		try (BufferedReader bf = new BufferedReader(file)) {
 			String st = bf.readLine();
@@ -428,16 +443,15 @@ public class eddlist {
 		}
 	}
 
-	public static void ReadResources(int NW, Resources[] res) throws IOException {
-		String string2 = "C:\\Users\\User\\Desktop\\Test2.txt";
-		FileReader file2 = new FileReader(string2);
-		try (BufferedReader bf2 = new BufferedReader(file2)) {
-			String st2 = bf2.readLine();
+	public static void ReadResources(int NW, Resources[] res, String string) throws IOException {
+		FileReader file = new FileReader(string);
+		try (BufferedReader bf = new BufferedReader(file)) {
+			String st = bf.readLine();
 			int count2 = 0;
 
-			while ((st2 = bf2.readLine()) != null) {
+			while ((st = bf.readLine()) != null) {
 
-				StringTokenizer stn = new StringTokenizer(st2);
+				StringTokenizer stn = new StringTokenizer(st);
 				int start = Integer.parseInt(stn.nextToken());
 				int end = Integer.parseInt(stn.nextToken());
 				int Type = Integer.parseInt(stn.nextToken());

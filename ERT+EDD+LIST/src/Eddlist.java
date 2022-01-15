@@ -2,7 +2,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.io.*;
 
-public class eddlist {
+public class Eddlist {
 
 	public static void main(String[] args) throws IOException {
 		int NJ = 6;

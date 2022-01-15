@@ -117,9 +117,9 @@ public class Progi extends JFrame {
 
 						}
 
-						eddlist.ReadJobs(NJ, job, openFileChooser.getSelectedFile().toString());
-						eddlist.SaveJobs(NJ, job, job2);
-						eddlist.SaveJobs(NJ, job, job3);
+						Eddlist.ReadJobs(NJ, job, openFileChooser.getSelectedFile().toString());
+						Eddlist.SaveJobs(NJ, job, job2);
+						Eddlist.SaveJobs(NJ, job, job3);
 						inputBR.close();
 						inputReader.close();
 
@@ -160,15 +160,15 @@ public class Progi extends JFrame {
 				if (massageLabel.getText() == "File succesfully read!"
 						&& massageLabel_1.getText() == "File succesfully read!") {
 					if (isDone == 0) {
-						eddlist.List(NJ, job, NW, res, s, Js, 1, Ws);
-						eddlist.Simulation_P(NW, job, res, Js);
-						eddlist.Evaluate(NJ, job, goalFunction);
-						eddlist.List(NJ, job2, NW, res2, s, Js, 2, Ws);
-						eddlist.Simulation_P(NW, job2, res2, Js);
-						eddlist.Evaluate(NJ, job2, goalFunction2);
-						eddlist.List(NJ, job3, NW, res3, s, Js, 3, Ws);
-						eddlist.Simulation_P(NW, job3, res3, Js);
-						eddlist.Evaluate(NJ, job3, goalFunction3);
+						Eddlist.List(NJ, job, NW, res, s, Js, 1, Ws);
+						Eddlist.Simulation_P(NW, job, res, Js);
+						Eddlist.Evaluate(NJ, job, goalFunction);
+						Eddlist.List(NJ, job2, NW, res2, s2, Js, 2, Ws);
+						Eddlist.Simulation_P(NW, job2, res2, Js);
+						Eddlist.Evaluate(NJ, job2, goalFunction2);
+						Eddlist.List(NJ, job3, NW, res3, s3, Js, 3, Ws);
+						Eddlist.Simulation_P(NW, job3, res3, Js);
+						Eddlist.Evaluate(NJ, job3, goalFunction3);
 					}
 
 					if (comboBox.getSelectedIndex() == 0) {
@@ -176,24 +176,24 @@ public class Progi extends JFrame {
 						isDone++;
 					} else if (comboBox.getSelectedIndex() == 1) {
 						textArea.setText("");
-						textArea.append(eddlist.printGoals(goalFunction));
+						textArea.append(Eddlist.printGoals(goalFunction));
 						textArea.append("\n\n");
-						textArea.append(eddlist.printJobs(job));
-						textArea.append(eddlist.printResources(res));
+						textArea.append(Eddlist.printJobs(job));
+						textArea.append(Eddlist.printResources(res));
 						isDone++;
 					} else if (comboBox.getSelectedIndex() == 2) {
 						textArea.setText("");
-						textArea.append(eddlist.printGoals(goalFunction2));
+						textArea.append(Eddlist.printGoals(goalFunction2));
 						textArea.append("\n\n");
-						textArea.append(eddlist.printJobs(job2));
-						textArea.append(eddlist.printResources(res2));
+						textArea.append(Eddlist.printJobs(job2));
+						textArea.append(Eddlist.printResources(res2));
 						isDone++;
 					} else if (comboBox.getSelectedIndex() == 3) {
 						textArea.setText("");
-						textArea.append(eddlist.printGoals(goalFunction3));
+						textArea.append(Eddlist.printGoals(goalFunction3));
 						textArea.append("\n\n");
-						textArea.append(eddlist.printJobs(job3));
-						textArea.append(eddlist.printResources(res3));
+						textArea.append(Eddlist.printJobs(job3));
+						textArea.append(Eddlist.printResources(res3));
 						isDone++;
 					}
 				} else {
@@ -207,9 +207,13 @@ public class Progi extends JFrame {
 		JButton openGanttButton = new JButton("Open Gantt Chart");
 		openGanttButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				close();
-				Gantt gantt = new Gantt(NJ, NW, end, job, job2, job3, res, res2, res3, s, s2, s3, goalFunction, goalFunction2, goalFunction3, Js, Ws);
-				gantt.setVisible(true);
+				if (massageLabel.getText() == "File succesfully read!"
+						&& massageLabel_1.getText() == "File succesfully read!") {
+					close();
+					Gantt gantt = new Gantt(NJ, NW, end, job, job2, job3, res, res2, res3, s, s2, s3, goalFunction, goalFunction2, goalFunction3, Js, Ws);
+					gantt.setVisible(true);
+				}
+				textArea.setText("Read inputs first!");
 			}
 		});
 		openGanttButton.setBounds(10, 315, 150, 23);
@@ -241,9 +245,9 @@ public class Progi extends JFrame {
 
 						}
 
-						eddlist.ReadResources(NW, res, openFileChooser.getSelectedFile().toString());
-						eddlist.SaveWorkstations(NW, res, res2);
-						eddlist.SaveWorkstations(NW, res, res3);
+						Eddlist.ReadResources(NW, res, openFileChooser.getSelectedFile().toString());
+						Eddlist.SaveWorkstations(NW, res, res2);
+						Eddlist.SaveWorkstations(NW, res, res3);
 						inputBR.close();
 						inputReader.close();
 

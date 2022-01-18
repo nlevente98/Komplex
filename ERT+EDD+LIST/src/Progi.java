@@ -13,10 +13,12 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JTextField;
 
 public class Progi extends JFrame {
 
@@ -34,7 +36,7 @@ public class Progi extends JFrame {
 
 	int isDone = 0;
 	int end = 0;
-	int NJ = 6;
+	int NJ = 7;
 	int NW = 3;
 	double[] goalFunction = new double[2];
 	double[] goalFunction2 = new double[2];
@@ -52,6 +54,9 @@ public class Progi extends JFrame {
 	Resources[] res2 = new Resources[NW];
 	Resources[] res3 = new Resources[NW];
 	String[] algorithm = { "", "EDD+List", "SPT+List", "LPT+List" };
+	private JTextField textField;
+	private JButton btnNewButton_1;
+	private JTextField textField_1;
 
 	public Progi() {
 		super("Progi");
@@ -210,7 +215,8 @@ public class Progi extends JFrame {
 				if (massageLabel.getText() == "File succesfully read!"
 						&& massageLabel_1.getText() == "File succesfully read!") {
 					close();
-					Gantt gantt = new Gantt(NJ, NW, end, job, job2, job3, res, res2, res3, s, s2, s3, goalFunction, goalFunction2, goalFunction3, Js, Ws);
+					Gantt gantt = new Gantt(NJ, NW, end, job, job2, job3, res, res2, res3, s, s2, s3, goalFunction,
+							goalFunction2, goalFunction3, Js, Ws);
 					gantt.setVisible(true);
 				}
 				textArea.setText("Read inputs first!");
@@ -274,6 +280,38 @@ public class Progi extends JFrame {
 		});
 		openResButton.setBounds(10, 45, 150, 23);
 		getContentPane().add(openResButton);
+
+		textField_1 = new JTextField();
+		textField_1.setBounds(295, 315, 80, 23);
+		getContentPane().add(textField_1);
+		textField_1.setColumns(10);
+
+		btnNewButton_1 = new JButton("Read number of jobs!");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (btnNewButton_1.getText() == "Read number of jobs!") {
+					try {
+						NJ = Integer.parseInt(textField_1.getText());
+						textField_1.setText("");
+						btnNewButton_1.setText("Read number of resources!");
+						JOptionPane.showMessageDialog(null, "NJ: " + NJ);
+					} catch (Exception ex) {
+						ex.getMessage();
+					}
+				} else {
+					try {
+						NW = Integer.parseInt(textField_1.getText());
+						textField_1.setText("");
+						btnNewButton_1.setText("Now read inputs!");
+						JOptionPane.showMessageDialog(null, "NR: " + NW);
+					} catch (Exception ex) {
+						ex.getMessage();
+					}
+				}
+			}
+		});
+		btnNewButton_1.setBounds(385, 315, 150, 23);
+		getContentPane().add(btnNewButton_1);
 
 		setVisible(true);
 

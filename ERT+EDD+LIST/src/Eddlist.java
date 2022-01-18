@@ -1,13 +1,16 @@
-import java.util.Random;
 import java.util.StringTokenizer;
 import java.io.*;
 
 public class Eddlist {
 
 	public static void main(String[] args) throws IOException {
-		int NJ = 6;
-		int NW = 3;
+		String str = "C:\\Users\\Dell\\OneDrive\\Dokumentumok\\Test.txt";
+		String str2 = "C:\\Users\\Dell\\OneDrive\\Dokumentumok\\Test2.txt";
+		int NJ=7;
+		int NW=3;
 		double[] goalFunction = new double[2];
+		double[] goalFunction2 = new double[2];
+		double[] goalFunction3 = new double[2];
 
 		int[] Js = new int[NJ];
 		int[] Ws = new int[NW];
@@ -37,8 +40,8 @@ public class Eddlist {
 			res[i].setL(200);
 		}
 
-		/*ReadJobs(NJ, job);
-		ReadResources(NW, res);*/
+		ReadJobs(NJ, job, str);
+		ReadResources(NW, res, str2);
 
 		SaveJobs(NJ, job, job2);
 		SaveWorkstations(NW, res, res2);
@@ -63,10 +66,10 @@ public class Eddlist {
 		System.out.println();
 		List(NJ, job2, NW, res2, s2, Js, 2, Ws);
 		Simulation_P(NW, job2, res2, Js);
-		Evaluate(NJ, job2, goalFunction);
+		Evaluate(NJ, job2, goalFunction2);
 
 		System.out.println("\nSPT+List:");
-		System.out.println(printGoals(goalFunction));
+		System.out.println(printGoals(goalFunction2));
 		System.out.println();
 		Massage3(s2);
 		System.out.println();
@@ -78,16 +81,24 @@ public class Eddlist {
 		System.out.println();
 		List(NJ, job3, NW, res3, s3, Js, 3, Ws);
 		Simulation_P(NW, job3, res3, Js);
-		Evaluate(NJ, job3, goalFunction);
+		Evaluate(NJ, job3, goalFunction3);
 
 		System.out.println("\nLPT+List:");
-		System.out.println(printGoals(goalFunction));
+		System.out.println(printGoals(goalFunction3));
 		System.out.println();
 		Massage3(s3);
 		System.out.println();
 		Massage2(res3);
 		System.out.println();
 		Massage(job3);
+
+		ScheduleRes(Js, job2, NJ, s2);
+		System.out.println();
+		Massage3(s2);
+		int need = CountNumbersAppers(1, NJ, NW, s2);
+		System.out.println("1.res: " + need);
+		System.out.println("Best algorith: ");
+		BestAlgorithm(goalFunction, goalFunction2, goalFunction3);
 
 	}
 
@@ -109,30 +120,6 @@ public class Eddlist {
 			if (array[i].getJobID() != 0) {
 				System.out.println(array[i].getJobID() + "\t" + array[i].getWorkstationID());
 			}
-		}
-	}
-
-	public static void randomJobGenerator(int NJ, Jobs[] job) {
-		Random r = new Random();
-		for (int i = 0; i < NJ; i++) {
-			int op = r.nextInt(100) + 1;
-			job[i].setId(i + 1);
-			job[i].setStartT(r.nextInt(10) + 0);
-			job[i].setProcT(op);
-			job[i].setD((NJ - i) * r.nextInt(10) + 1 + op + job[i].getStartT());
-			job[i].setType(0);
-		}
-	}
-
-	public static void randomWorkstationGenerator(int NW, Resources[] res) {
-		Random r = new Random();
-		for (int i = 0; i < NW; i++) {
-			int op = r.nextInt(10) + 0;
-			res[i].setL(0);
-			res[i].setStart(op);
-			res[i].setEnd(r.nextInt(200) + 100 + op);
-			res[i].setC(0);
-			res[i].setType(0);
 		}
 	}
 
@@ -274,7 +261,7 @@ public class Eddlist {
 		String str = "Goal functions:\nLmax:" + goal[0] + "\nEmax" + goal[1];
 		return str;
 	}
-	
+
 	public static String printJobs(Jobs[] job) {
 		String str = "";
 		for (int i = 0; i < job.length; i++) {
@@ -282,7 +269,7 @@ public class Eddlist {
 		}
 		return str;
 	}
-	
+
 	public static String printResources(Resources[] res) {
 		String str = "";
 		for (int i = 0; i < res.length; i++) {
@@ -485,4 +472,59 @@ public class Eddlist {
 		return number;
 	}
 
+	public static void ScheduleRes(int[] s, Jobs[] job, int NJ, Scheduler[] sch) {
+		for (int i = 0; i < (NJ - 1); i++) {
+			int index = i;
+			for (int j = (i + 1); j < NJ; j++) {
+				if (sch[index].getWorkstationID() > sch[j].getWorkstationID())
+					index = j;
+				else if (sch[index].getWorkstationID() == sch[j].getWorkstationID()
+						&& job[(sch[index].getJobID() - 1)].getStartT() > job[(sch[j].getJobID() - 1)].getStartT()) {
+					index = j;
+				}
+			}
+			if (index != i) {
+				Scheduler temp = sch[index];
+				sch[index] = sch[i];
+				sch[i] = temp;
+			}
+		}
+	}
+
+	public static int BestAlgorithm(double[] g, double[] g2, double[] g3) {
+		int lmax = 0;
+		int best = 1;
+		int[] goals = { (int) g[0], (int) g2[0], (int) g3[0] };
+		for (int i = 0; i < goals.length; i++) {
+			if (i == 0) {
+				lmax = goals[0];
+			} else if (lmax > goals[i]) {
+				lmax = goals[i];
+				best = i + 1;
+			}
+		}
+		switch (best) {
+		case 1:
+			System.out.println("EDD+List with Lmax: " + lmax);
+			break;
+		case 2:
+			System.out.println("SPT+List with Lmax: " + lmax);
+			break;
+		case 3:
+			System.out.println("LPT+List with Lmax: " + lmax);
+			break;
+		}
+		return best;
+	}
+
+	public static int CountNumbersAppers(int needed, int NJ, int NW, Scheduler[] sch) {
+		int count = 0;
+		for (int j = 0; j < NJ; j++) {
+			if (sch[j].getWorkstationID() == needed) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
 }

@@ -1,7 +1,23 @@
 public class Scheduler {
 	
 	private int jobID;
-	private int workstationID;
+	private int resourceID;
+
+	public int getJobID() {
+		return jobID;
+	}
+
+	public void setJobID(int jobID) {
+		this.jobID = jobID;
+	}
+
+	public int getResourceID() {
+		return resourceID;
+	}
+
+	public void setResourceID(int resourceID) {
+		this.resourceID = resourceID;
+	}
 	
 	public Scheduler() {
 		super();
@@ -9,26 +25,7 @@ public class Scheduler {
 
 	@Override
 	public String toString() {
-		return "Job ID: " + getJobID() + " is assigned to Workstation ID:" + getWorkstationID();
+		return "Job ID: " + getJobID() + " is assigned to Resource ID:" + getResourceID();
 	}	
-
-	public int getJobID() {
-		return jobID;
-	}
-
-
-	public void setJobID(int jobID) {
-		this.jobID = jobID;
-	}
-
-
-	public int getWorkstationID() {
-		return workstationID;
-	}
-
-
-	public void setWorkstationID(int workstationID) {
-		this.workstationID = workstationID;
-	}
 	
 }

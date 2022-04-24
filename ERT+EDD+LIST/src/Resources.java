@@ -1,48 +1,53 @@
-public class Resources {
+	public class Resources {
 	private int id;
+	private TimeWindows[] time;
+	private int tw;
+	private int number;
+	private int startT;
+	private int endT;
+	private int type;
 	private int l;
-	private int C;
-	private int start;
-	private int end;
-	private int Type;
+	private int c;
+	private String sch;
 
-	public int getType() {
-		return Type;
+	public int getStartT() {
+		return startT;
 	}
 
-
-	public void setType(int type) {
-		Type = type;
+	public void setStartT(int startT) {
+		this.startT = startT;
 	}
 
-
-	public int getStart() {
-		return start;
+	public int getEndT() {
+		return endT;
 	}
 
-
-	public void setStart(int start) {
-		this.start = start;
+	public void setEndT(int endT) {
+		this.endT = endT;
 	}
 
-
-	public int getEnd() {
-		return end;
+	public TimeWindows[] getTime() {
+		return time;
 	}
 
-
-	public void setEnd(int end) {
-		this.end = end;
+	public void setTime(TimeWindows[] time) {
+		this.time = time;
 	}
 
-
-	public int getC() {
-		return C;
+	public int getTw() {
+		return tw;
 	}
 
+	public void setTw(int tw) {
+		this.tw = tw;
+	}
 
-	public void setC(int c) {
-		this.C = c;
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
 	}
 
 	public int getId() {
@@ -53,6 +58,14 @@ public class Resources {
 		this.id = id;
 	}
 
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
 	public int getL() {
 		return l;
 	}
@@ -61,13 +74,35 @@ public class Resources {
 		this.l = l;
 	}
 
+	public int getC() {
+		return c;
+	}
+
+	public void setC(int c) {
+		this.c = c;
+	}
+
+	public String getSch() {
+		return sch;
+	}
+
+	public void setSch(String sch) {
+		this.sch = sch;
+	}
+
 	public Resources() {
 		super();
 	}
 
+	public Resources(int a) {
+		super();
+		time = new TimeWindows[a];
+	}
+
 	@Override
 	public String toString() {
-		return id +".workstations\nStart time:" + start + "\tEnd time:" + end + "\tComputing time:" + C + "\tWorks done:" + l + "\n";
+		return id + ".Resource:\nId: " + getId() + "\tComputing time:" + getC() + "\tWorks done:" + getL()
+				+ "\tTimeWindows: " + getTw();
 	}
 
 }

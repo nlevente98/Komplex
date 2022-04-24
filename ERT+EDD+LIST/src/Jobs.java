@@ -1,12 +1,53 @@
 public class Jobs {
-	private int ProcT;
-	private int Id;
-	private int StartT;
-	private int EndT;
-	private int Type;
+	private int id;
+	private int procT;
+	private int startT;
+	private int endT;
+	private int type;
 	private int d;
-	private int L;
-	
+	private int l;
+	private int setUp;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getProcT() {
+		return procT;
+	}
+
+	public void setProcT(int procT) {
+		this.procT = procT;
+	}
+
+	public int getStartT() {
+		return startT;
+	}
+
+	public void setStartT(int startT) {
+		this.startT = startT;
+	}
+
+	public int getEndT() {
+		return endT;
+	}
+
+	public void setEndT(int endT) {
+		this.endT = endT;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
 	public int getD() {
 		return d;
 	}
@@ -16,51 +57,19 @@ public class Jobs {
 	}
 
 	public int getL() {
-		return L;
+		return l;
 	}
 
-	public void setL(long m) {
-		L = (int) m;
+	public void setL(int l) {
+		this.l = l;
 	}
 
-	public int getType() {
-		return Type;
+	public int getSetUp() {
+		return setUp;
 	}
 
-	public void setType(int type) {
-		Type = type;
-	}
-
-	public int getProcT() {
-		return ProcT;
-	}
-
-	public void setProcT(int procT) {
-		ProcT = procT;
-	}
-
-	public int getId() {
-		return Id;
-	}
-
-	public void setId(int id) {
-		this.Id = id;
-	}
-
-	public int getStartT() {
-		return StartT;
-	}
-
-	public void setStartT(int startT) {
-		StartT = startT;
-	}
-
-	public int getEndT() {
-		return EndT;
-	}
-
-	public void setEndT(int endT) {
-		EndT = endT;
+	public void setSetUp(int setUp) {
+		this.setUp = setUp;
 	}
 
 	public Jobs() {
@@ -69,8 +78,8 @@ public class Jobs {
 
 	@Override
 	public String toString() {
-		return Id + ".job:\nProccessing time:" + ProcT + "\tStart time:" + StartT +"\tEnd time:" + EndT + "\tDuedate:" + d + "\tLateness:" + L + "\n";
+		return id + ".job:\nProccessing time:" + procT + "\tStart time:" + startT + "\tSet up time:" + setUp
+				+ "\tEnd time:" + endT + "\tDuedate:" + d + "\tLateness:" + l + "\n";
 	}
-	
 
 }

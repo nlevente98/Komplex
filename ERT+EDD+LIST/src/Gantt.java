@@ -6,7 +6,6 @@ import java.awt.geom.Line2D;
 import java.util.Random;
 import java.awt.Color;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -25,7 +24,7 @@ public class Gantt extends JFrame {
 
 	public Gantt(int NJ, int NW, int NG, int end, Jobs[] job, Scheduler[] s, int[] Js, int[] Ws, String goalname) {
 		super("Resource-oriented Gantt chart");
-
+		
 		colors = new Color[] { Color.RED, Color.BLUE };
 		NJOB = NJ;
 		NRES = NW;
@@ -46,8 +45,6 @@ public class Gantt extends JFrame {
 		backButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				close();
-				// Progi p = new Progi();
-				// p.setVisible(true);
 			}
 		});
 		backButton.setBounds(465 + ended, 297 + vPlus, 80, 23);
@@ -260,6 +257,5 @@ public class Gantt extends JFrame {
 
 	public static void main(String[] args) {
 		Gantt gantt = new Gantt();
-		JScrollPane scrollPane = new JScrollPane(gantt);
 	}
 }

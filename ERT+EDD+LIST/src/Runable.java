@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -10,14 +11,15 @@ import java.util.StringTokenizer;
 public class Runable {
 
 	public static void main(String[] args) {
-		int NJ = 6;
-		int NR = 4;
+		int NJ = 18;
+		int NR = 6;
 		int NG = 5;
 		String str = "C:\\Users\\Leventeke\\Desktop\\";
-		// String str2 = str + "NJ_" + NJ + "_2022-01-29.txt";
-		// String str3 = str + "NR_" + NR + "_2022-01-29.txt";
-		String test = str + "test.txt";
-		String test2 = str + "test2.txt";
+		String str2 = str + "NJ_" + NJ + "_2022-04-26.txt";
+		String str3 = str + "NR_" + NR + "_2022-04-26.txt";
+		/*
+		 * String test = str + "test.txt"; String test2 = str + "test2.txt";
+		 */
 		Goals[] goals = new Goals[NG];
 		for (int i = 0; i < NG; i++) {
 			goals[i] = new Goals();
@@ -59,18 +61,15 @@ public class Runable {
 		}
 
 		try {
-			ReadJobs(NJ, job, test);
-			ReadResources(NR, res, test2);
+			//String str4 = str + "NJ_" + NJ + "_" + LocalDate.now() + ".txt";
+			//String str5 = str + "NR_" + NR + "_" + LocalDate.now() + ".txt";
+			//randomJobGenerator(NJ, job, str4);
+			//randomResourceGenerator(NR, res, str5);
+			ReadJobs(NJ, job, str2);
+			ReadResources(NR, res, str3);
 		} catch (Exception ex) {
-			System.out.println("Error while reading files:\n" + ex.getMessage());
+			ex.printStackTrace();
 		}
-
-		/*
-		 * randomJobGenerator(NJ, job); randomWorkstationGenerator(NR, res); String str4
-		 * = str + "NJ_" + NJ + "_" + LocalDate.now() + ".txt"; WriteJobsToTxt(NJ, job,
-		 * str4); String str5 = str + "NR_" + NR + "_" + LocalDate.now() + ".txt";
-		 * WriteResourcesToTxt(NR, res, str5);
-		 */
 
 		SaveJobs(NJ, job, job2);
 		SaveResources(NR, res, res2);
@@ -116,29 +115,64 @@ public class Runable {
 		}
 	}
 
-	public static void randomJobGenerator(int NJ, Jobs[] job) {
-		Random r = new Random();
-		for (int i = 0; i < NJ; i++) {
-			job[i].setId(i + 1);
-			job[i].setStartT(r.nextInt(10) + 0);
-			job[i].setProcT(r.nextInt(20) + 1);
-			job[i].setType(r.nextInt(2) + 1);
-			if (job[i].getType() == 1)
-				job[i].setSetUp(2);
-			else
-				job[i].setSetUp(3);
-			job[i].setD(((NJ - i) * r.nextInt(100) + 20));
+	public static void randomJobGenerator(int NJ, Jobs[] job, String string) {
+		try (BufferedWriter bf = new BufferedWriter(new FileWriter(string))) {
+			bf.write("ProcT	StartT	d	Type	SetUp");
+			Random r = new Random();
+			for (int i = 0; i < NJ; i++) {
+				job[i].setId(i + 1);
+				job[i].setStartT(r.nextInt(10) + 0);
+				job[i].setProcT(r.nextInt(20) + 1);
+				job[i].setType(r.nextInt(2) + 1);
+				if (job[i].getType() == 1)
+					job[i].setSetUp(2);
+				else
+					job[i].setSetUp(3);
+				job[i].setD((r.nextInt(100) + 50) + job[i].getProcT());
+				String str = "\n" + job[i].getProcT() + "\t" + job[i].getStartT() + "\t" + job[i].getD() + "\t"
+						+ job[i].getType() + "\t" + job[i].getSetUp();
+				bf.append(str);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
-	public static void randomWorkstationGenerator(int NR, Resources[] res) {
-		Random r = new Random();
-		for (int i = 0; i < NR; i++) {
-			res[i].setL(0);
-			res[i].setC(0);
-			res[i].setStartT(r.nextInt(10) + 0);
-			res[i].setEndT(r.nextInt(400) + 200);
-			res[i].setType(r.nextInt(2) + 1);
+	public static void randomResourceGenerator(int NR, Resources[] res, String string) {
+		try (BufferedWriter bf = new BufferedWriter(new FileWriter(string))) {
+			bf.write("id	Type	tw	start	end");
+			Random r = new Random();
+			for (int i = 0; i < NR; i++) {
+				res[i].setL(0);
+				res[i].setC(0);
+				res[i].setId(i + 1);
+				res[i].setType(r.nextInt(2) + 1);
+				res[i].setTw(r.nextInt(2) + 1);
+				TimeWindows[] time = new TimeWindows[res[i].getTw()];
+				time[0] = new TimeWindows();
+				int next = r.nextInt(10) + 0;
+				int next2 = r.nextInt(200) + 50;
+				res[i].setStartT(next);
+				res[i].setEndT(next2);
+				time[0].setStart(next);
+				time[0].setEnd(next2);
+				String str = "\n" + res[i].getId() + "\t" + res[i].getType() + "\t" + res[i].getTw() + "\t"
+						+ res[i].getStartT() + "\t" + res[i].getEndT();
+				if (res[i].getTw() != 1) {
+					for (int j = 1; j < time.length; j++) {
+						next = r.nextInt(10) + 0;
+						next2 = r.nextInt(200) + 50;
+						time[j] = new TimeWindows();
+						time[j].setStart(time[j - 1].getEnd() + next);
+						time[j].setEnd(time[j - 1].getEnd() + next2);
+						str = str + "\t" + time[j].getStart() + "\t" + time[j].getEnd();
+					}
+				}
+				res[i].setTime(time);
+				bf.append(str);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -449,7 +483,7 @@ public class Runable {
 			ArrayList<Scheduler> list = new ArrayList<Scheduler>();
 			for (int i = 0; i < NR; i++) {
 				System.out.println(res[i].getSch());
-				if(res[i].getSch() != null) {
+				if (res[i].getSch() != null) {
 					String str = res[i].getSch();
 					String[] numbersArray = str.split(" ");
 					for (int j = 0; j < numbersArray.length; j++) {
@@ -497,31 +531,6 @@ public class Runable {
 
 			for (int i = 0; i < NJ; i++) {
 				System.out.println(job[i].toString());
-			}
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void WriteJobsToTxt(int NJ, Jobs[] job, String string) throws IOException {
-		try (BufferedWriter bf = new BufferedWriter(new FileWriter(string))) {
-			bf.write("ProcT	StartT	d	Type	SetUp");
-			for (int i = 0; i < NJ; i++) {
-				String str = "\n" + job[i].getProcT() + "\t" + job[i].getStartT() + "\t" + job[i].getD() + "\t"
-						+ job[i].getType() + "\t" + job[i].getSetUp();
-				bf.append(str);
-			}
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void WriteResourcesToTxt(int NR, Resources[] res, String string) throws IOException {
-		try (BufferedWriter bf = new BufferedWriter(new FileWriter(string))) {
-			bf.write("start	end	Type");
-			for (int i = 0; i < NR; i++) {
-				String str = "\n" + res[i].getStartT() + "\t" + res[i].getEndT() + "\t" + res[i].getType();
-				bf.append(str);
 			}
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
@@ -662,7 +671,7 @@ public class Runable {
 		return sch;
 	}
 
-	public static void ReverseList(int NJ, Jobs[] job, int number, Scheduler[] sch, int num) {
+	public static void ReverseList(int NJ, Jobs[] job, int number, Scheduler[] sch, int num, Resources[] res) {
 		int next = 0;
 		ArrayList<Integer> list = new ArrayList<Integer>();
 		for (int i = 0; i < NJ; i++) {
@@ -678,14 +687,19 @@ public class Runable {
 				if (i != 0) {
 					if (job[Js[i]].getD() - job[Js[i]].getProcT() - next >= job[Js[i - 1]].getD()
 							&& job[Js[i]].getD() - job[Js[i]].getProcT() - next >= 0) {
-						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next + number);
+						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next);
 						next = 0;
+					} else if (job[Js[i]].getD() - job[Js[i]].getProcT() - next + number >= job[Js[i - 1]].getD()) {
+						int n = (job[Js[i]].getD() - job[Js[i]].getProcT() - next + number) - job[Js[i - 1]].getD();
+						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next + n);
 					} else if (job[Js[i]].getD() - job[Js[i]].getProcT() - next >= 0) {
-						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next + number);
+						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next);
 						next += (job[Js[i - 1]].getD() - (job[Js[i]].getD() - job[Js[i]].getProcT()));
 					}
 				} else {
 					if (job[Js[i]].getD() - job[Js[i]].getProcT() - next >= 0 + job[Js[i]].getSetUp()) {
+						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next);
+					} else if (job[Js[i]].getD() - job[Js[i]].getProcT() - next + number >= 0 + job[Js[i]].getSetUp()) {
 						job[Js[i]].setStartT(job[Js[i]].getD() - job[Js[i]].getProcT() - next + number);
 					} else {
 						job[Js[i]].setStartT(0 + job[Js[i]].getSetUp() + number);
@@ -839,12 +853,13 @@ public class Runable {
 		SaveSchedule(NJ, NR, res, s2);
 		AfterScheduler(NJ, job, s2);
 		for (int i = 0; i < NR; i++) {
-			ReverseList(NJ, job, 3, s2, i);
+			ReverseList(NJ, job, 3, s2, i, res);
 		}
 		Simulation_P(NR, job, res, Js);
 		Evaluate(NJ, job, goals, number);
 		System.out.println(printGoals(goals, number));
 		Message(job);
+		Message2(res);
 		Message3(s2);
 	}
 
